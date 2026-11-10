@@ -1,9 +1,10 @@
-import type { Question } from '../../domain';
+import { MAX_CHOICES, MIN_CHOICES, type Question } from '../../domain';
 
 export interface ImportRow {
   line: number;
   text: string;
   answer: string;
+  choices?: string[] | undefined;
   difficulty: number;
   themes: string[];
 }
@@ -19,6 +20,22 @@ export interface ParsedQuestions {
 }
 
 const DEFAULT_DIFFICULTY = 3;
+const CHOICE_COLUMNS = Array.from({ length: MAX_CHOICES }, (_, i) => `choice${i + 1}`);
+
+/** The answer may be a choice's text or its letter (A, B, ...); returns the choice's text. */
+function checkChoices(choices: string[], answer: string): { answer: string } | { message: string } {
+  if (choices.length < MIN_CHOICES)
+    return { message: 'A multiple-choice question needs at least 2 choices.' };
+  const key = (s: string) => s.trim().toLowerCase();
+  if (new Set(choices.map(key)).size !== choices.length)
+    return { message: 'Two choices are the same.' };
+  const byText = choices.find((c) => key(c) === key(answer));
+  const byLetter = choices[answer.trim().toUpperCase().charCodeAt(0) - 65];
+  const match = byText ?? (answer.trim().length === 1 ? byLetter : undefined);
+  return match === undefined
+    ? { message: `The answer "${answer}" is not one of the choices.` }
+    : { answer: match };
+}
 
 // A spreadsheet runs cells that start like a formula. Questions come from other people, so exported
 // cells that could be read as one get a leading apostrophe; import removes it again.
@@ -84,6 +101,7 @@ export function parseQuestionCsv(text: string): ParsedQuestions {
   const [question, answer, difficulty, themes] = ['question', 'answer', 'difficulty', 'themes'].map(
     col,
   );
+  const choiceColumns = CHOICE_COLUMNS.map(col).filter((i) => i >= 0);
   if (question === undefined || question < 0 || answer === undefined || answer < 0) {
     return {
       rows: [],
@@ -103,9 +121,14 @@ export function parseQuestionCsv(text: string): ParsedQuestions {
     const rawDifficulty = get(difficulty);
     const rowDifficulty = rawDifficulty === '' ? DEFAULT_DIFFICULTY : Number(rawDifficulty);
 
+    const rowChoices = choiceColumns.map(get).filter((c) => c !== '');
+    const choiceProblem = rowChoices.length > 0 ? checkChoices(rowChoices, rowAnswer) : undefined;
+
     if (rowText === '') errors.push({ line: record.line, message: 'The question is empty.' });
     else if (rowAnswer === '') errors.push({ line: record.line, message: 'The answer is empty.' });
-    else if (!Number.isInteger(rowDifficulty) || rowDifficulty < 1 || rowDifficulty > 5) {
+    else if (choiceProblem && 'message' in choiceProblem) {
+      errors.push({ line: record.line, message: choiceProblem.message });
+    } else if (!Number.isInteger(rowDifficulty) || rowDifficulty < 1 || rowDifficulty > 5) {
       errors.push({
         line: record.line,
         message: `Difficulty "${rawDifficulty}" must be a whole number from 1 to 5.`,
@@ -119,7 +142,8 @@ export function parseQuestionCsv(text: string): ParsedQuestions {
       rows.push({
         line: record.line,
         text: rowText,
-        answer: rowAnswer,
+        answer: choiceProblem ? choiceProblem.answer : rowAnswer,
+        choices: choiceProblem ? rowChoices : undefined,
         difficulty: rowDifficulty,
         themes: rowThemes,
       });
@@ -135,7 +159,12 @@ export function questionsToCsv(
   questions: Question[],
   themeName: (id: string) => string | undefined,
 ): string {
-  const lines = [['question', 'answer', 'difficulty', 'themes']];
+  // Only as many choice columns as the widest question needs, so banks without any look as before.
+  const columns = CHOICE_COLUMNS.slice(
+    0,
+    Math.max(0, ...questions.map((q) => q.choices?.length ?? 0)),
+  );
+  const lines = [['question', 'answer', 'difficulty', 'themes', ...columns]];
   for (const q of questions) {
     const names = q.themeIds.map(themeName).filter((n): n is string => n !== undefined);
     lines.push([
@@ -143,6 +172,7 @@ export function questionsToCsv(
       guard(q.answer),
       String(q.authorRating),
       names.map(guard).join(';'),
+      ...columns.map((_, i) => guard(q.choices?.[i] ?? '')),
     ]);
   }
   return lines.map((cells) => cells.map(escapeCell).join(',')).join('\r\n') + '\r\n';

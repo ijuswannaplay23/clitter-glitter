@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { standings as computeStandings } from '../../scoring';
 import { useNight } from '../event-runner/useNight';
+import { choiceLetter } from '../question-bank/choices';
 import { errorMessage } from '../repository';
 import { projectedQuestion, roundsShown, scoreboardTitle } from './scoreboard';
 
@@ -69,6 +70,16 @@ export function Projector({ eventId }: { eventId: string }) {
         <p className="question" aria-label="Question">
           {question.text}
         </p>
+        {question.choices && (
+          <ol className="choices" aria-label="Choices">
+            {question.choices.map((choice, i) => (
+              <li key={i}>
+                <span className="letter">{choiceLetter(i)}</span>
+                {choice}
+              </li>
+            ))}
+          </ol>
+        )}
         <button type="button" className="fullscreen" onClick={toggleFullscreen}>
           Fullscreen
         </button>

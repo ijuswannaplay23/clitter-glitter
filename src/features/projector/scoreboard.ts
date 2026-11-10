@@ -17,19 +17,21 @@ export interface ProjectedQuestion {
   number: number;
   of: number;
   text: string;
+  choices?: string[] | undefined;
 }
 
 /** What the room should read, or undefined to show the scoreboard. Carries no answer by design. */
 export function projectedQuestion(event: GameEvent): ProjectedQuestion | undefined {
   const id = event.projectorQuestionId;
   if (id === undefined) return undefined;
-  const text = event.questions?.find((q) => q.id === id)?.text;
+  const question = event.questions?.find((q) => q.id === id);
   const round = event.quizSnapshot.rounds.find((r) => r.questionIds.includes(id));
-  if (text === undefined || !round) return undefined;
+  if (!question || !round) return undefined;
   return {
     roundTitle: round.title,
     number: round.questionIds.indexOf(id) + 1,
     of: round.questionIds.length,
-    text,
+    text: question.text,
+    choices: question.choices,
   };
 }

@@ -57,6 +57,21 @@ describe('sheetTemplates', () => {
     expect(JSON.stringify(withText)).not.toContain('Answer');
   });
 
+  it('appends lettered choices to the question text, still without the answer', async () => {
+    const event = await night();
+    const withChoices = {
+      ...event,
+      questions: event.questions?.map((q) => ({
+        ...q,
+        answer: 'Rome',
+        choices: ['Paris', 'Rome'],
+      })),
+    };
+    const [first] = sheetTemplates(withChoices, true);
+    expect(first?.rows[0]?.text).toBe('Question 1   A. Paris   B. Rome');
+    expect(sheetTemplates(withChoices, false)[0]?.rows[0]?.text).toBeUndefined();
+  });
+
   it('leaves text empty for a quick night that has no question text', async () => {
     const event = await night({ snapshotQuestions: false });
     expect(sheetTemplates(event, true)[0]?.rows.every((r) => r.text === undefined)).toBe(true);

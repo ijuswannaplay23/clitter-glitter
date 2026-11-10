@@ -4,7 +4,11 @@ import type { ImportRow } from './csv';
 
 export interface QuestionDraft {
   text: string;
+  /** For a multiple-choice question this is ignored: the answer is the choice at `correctIndex`. */
   answer: string;
+  /** Leave out for an open-ended question. */
+  choices?: string[] | undefined;
+  correctIndex?: number | undefined;
   difficulty: number;
   themeIds: string[];
   /** Names typed by the host; created as themes if they do not exist yet. */
@@ -31,17 +35,33 @@ export async function resolveThemes(repo: Repository, names: string[]): Promise<
   return resolved;
 }
 
+/** Trims the choices and works out which one is the answer; throws a message the host can act on. */
+export function resolveChoices(draft: QuestionDraft): { choices?: string[]; answer: string } {
+  if (draft.choices === undefined) return { answer: draft.answer.trim() };
+  const choices = draft.choices.map((c) => c.trim());
+  if (choices.some((c) => c === ''))
+    throw new Error('Fill in every choice or remove the empty ones.');
+  if (new Set(choices.map(normalize)).size !== choices.length) {
+    throw new Error('Two choices are the same.');
+  }
+  const answer = choices[draft.correctIndex ?? -1];
+  if (answer === undefined) throw new Error('Mark which choice is correct.');
+  return { choices, answer };
+}
+
 export async function saveQuestionDraft(
   repo: Repository,
   draft: QuestionDraft,
   existing?: Question,
 ): Promise<Question> {
+  const { choices, answer } = resolveChoices(draft);
   const created = await resolveThemes(repo, draft.newThemeNames);
   return repo.questions.save({
     id: existing?.id ?? newId(),
     updatedAt: nowIso(),
     text: draft.text.trim(),
-    answer: draft.answer.trim(),
+    answer,
+    choices,
     authorRating: draft.difficulty,
     themeIds: [...new Set([...draft.themeIds, ...created.map((t) => t.id)])],
     status: existing?.status ?? 'approved',
@@ -74,6 +94,7 @@ export async function importQuestionRows(
       updatedAt: nowIso(),
       text: row.text,
       answer: row.answer,
+      choices: row.choices,
       authorRating: row.difficulty,
       themeIds: row.themes
         .map((name) => idByName.get(normalize(name)))

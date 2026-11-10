@@ -75,13 +75,14 @@ export async function seedTheme(repo: Repository, name: string) {
 export async function seedQuestion(
   repo: Repository,
   text: string,
-  options: { answer?: string; rating?: number; themeIds?: string[] } = {},
+  options: { answer?: string; rating?: number; themeIds?: string[]; choices?: string[] } = {},
 ) {
   return repo.questions.save({
     id: newId(),
     updatedAt: new Date().toISOString(),
     text,
     answer: options.answer ?? 'Answer',
+    choices: options.choices,
     authorRating: options.rating ?? 3,
     themeIds: options.themeIds ?? [],
     status: 'approved',

@@ -13,14 +13,26 @@ export const ThemeSchema = z.object({
   name: z.string().min(1),
 });
 
-export const QuestionSchema = z.object({
-  ...row,
-  text: z.string().min(1),
-  answer: z.string().min(1),
-  themeIds: z.array(z.uuid()),
-  authorRating: z.number().int().min(1).max(5),
-  status: z.enum(['pending', 'approved']),
-});
+export const MIN_CHOICES = 2;
+export const MAX_CHOICES = 6;
+
+// Absent for an open-ended question. When present, `answer` is the text of exactly one choice.
+const choices = z.array(z.string().min(1)).min(MIN_CHOICES).max(MAX_CHOICES).optional();
+const answerIsAChoice = (q: { answer: string; choices?: string[] | undefined }) =>
+  q.choices === undefined || q.choices.includes(q.answer);
+const answerIsAChoiceMessage = { message: 'The answer must be one of the choices.' };
+
+export const QuestionSchema = z
+  .object({
+    ...row,
+    text: z.string().min(1),
+    answer: z.string().min(1),
+    choices,
+    themeIds: z.array(z.uuid()),
+    authorRating: z.number().int().min(1).max(5),
+    status: z.enum(['pending', 'approved']),
+  })
+  .refine(answerIsAChoice, answerIsAChoiceMessage);
 
 export const QuizRoundSchema = z.discriminatedUnion('kind', [
   z.object({
@@ -47,12 +59,15 @@ export const QuizSchema = z.object({
 
 // Question text copied into a night when it starts, so later bank edits or deletions never
 // change what was asked.
-export const QuestionSnapshotSchema = z.object({
-  id: z.uuid(),
-  text: z.string().min(1),
-  answer: z.string().min(1),
-  difficulty: z.number().int().min(1).max(5),
-});
+export const QuestionSnapshotSchema = z
+  .object({
+    id: z.uuid(),
+    text: z.string().min(1),
+    answer: z.string().min(1),
+    choices,
+    difficulty: z.number().int().min(1).max(5),
+  })
+  .refine(answerIsAChoice, answerIsAChoiceMessage);
 
 export const EventSchema = z.object({
   ...row,

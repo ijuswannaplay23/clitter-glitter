@@ -45,6 +45,64 @@ describe('adding and editing', () => {
     expect(screen.getByLabelText<HTMLTextAreaElement>('Question').value).toBe('');
   });
 
+  it('adds a multiple-choice question whose answer is the marked choice', async () => {
+    const repo = createTestRepository();
+    renderWithRepository(<QuestionBank />, repo);
+
+    fireEvent.change(await screen.findByLabelText('Question'), {
+      target: { value: 'Capital of Italy?' },
+    });
+    fireEvent.click(screen.getByLabelText('Multiple choice'));
+    expect(screen.queryByLabelText('Answer')).toBeNull();
+    ['Paris', 'Rome', 'Oslo', 'Bern'].forEach((value, i) =>
+      fireEvent.change(screen.getByLabelText(`Choice ${'ABCD'[i]}`), { target: { value } }),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add question' }));
+    expect((await screen.findByRole('alert')).textContent).toBe('Mark which choice is correct.');
+
+    fireEvent.click(screen.getByLabelText('Choice B is correct'));
+    fireEvent.click(screen.getByRole('button', { name: 'Add question' }));
+
+    const row = await (await table()).findByRole('row', { name: /Capital of Italy/ });
+    expect(row.textContent).toContain('A. Paris   B. Rome   C. Oslo   D. Bern');
+    const [saved] = await repo.questions.list();
+    expect(saved).toMatchObject({ answer: 'Rome', choices: ['Paris', 'Rome', 'Oslo', 'Bern'] });
+  });
+
+  it('adds and removes choices within 2 to 6, keeping the right one marked', async () => {
+    const repo = createTestRepository();
+    renderWithRepository(<QuestionBank />, repo);
+    fireEvent.click(await screen.findByLabelText('Multiple choice'));
+
+    fireEvent.click(screen.getByLabelText('Choice C is correct'));
+    fireEvent.click(screen.getByRole('button', { name: 'Remove choice A' }));
+    expect(screen.getByLabelText<HTMLInputElement>('Choice B is correct').checked).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add a choice' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add a choice' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add a choice' }));
+    expect(screen.queryByRole('button', { name: 'Add a choice' })).toBeNull();
+
+    for (const letter of ['F', 'E', 'D', 'C']) {
+      fireEvent.click(screen.getByRole('button', { name: `Remove choice ${letter}` }));
+    }
+    expect(screen.queryByRole('button', { name: /Remove choice/ })).toBeNull();
+  });
+
+  it('edits a multiple-choice question with its answer still selected', async () => {
+    const repo = createTestRepository();
+    await seedQuestion(repo, 'Capital of Italy?', {
+      answer: 'Rome',
+      choices: ['Paris', 'Rome', 'Oslo'],
+    });
+    renderWithRepository(<QuestionBank />, repo);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit: Capital of Italy?' }));
+    expect(screen.getByLabelText<HTMLInputElement>('Choice B is correct').checked).toBe(true);
+    expect(screen.getByLabelText<HTMLInputElement>('Choice B').value).toBe('Rome');
+  });
+
   it('reuses an existing theme typed in a different case instead of duplicating it', async () => {
     const repo = createTestRepository();
     await seedTheme(repo, 'Movies');

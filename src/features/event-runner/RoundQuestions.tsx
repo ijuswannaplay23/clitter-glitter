@@ -1,4 +1,5 @@
 import type { QuestionSnapshot, QuizRound } from '../../domain';
+import { answerLabel, choicesLine } from '../question-bank/choices';
 import { difficultyLabel } from '../question-bank/difficulty';
 
 /** The host's cue card: this round's questions with their answers. The answer never reaches the projector. */
@@ -27,7 +28,11 @@ export function RoundQuestions({
             <li key={id}>
               {q ? (
                 <>
-                  <span>{q.text}</span> <strong>{q.answer}</strong>{' '}
+                  <span>{q.text}</span>
+                  {q.choices && (
+                    <span className="choices-line"> {choicesLine(q.choices)}</span>
+                  )}{' '}
+                  <strong>{answerLabel(q)}</strong>{' '}
                   <span className="chip">{difficultyLabel(q.difficulty)}</span>{' '}
                   <button
                     type="button"

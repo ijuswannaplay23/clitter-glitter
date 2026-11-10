@@ -39,7 +39,9 @@ export function NewEventForm({ onCreated }: { onCreated: (eventId: string) => vo
     }
     const questions = ids.flatMap((id) => {
       const q = bank.get(id);
-      return q ? [{ id, text: q.text, answer: q.answer, difficulty: q.authorRating }] : [];
+      return q
+        ? [{ id, text: q.text, answer: q.answer, choices: q.choices, difficulty: q.authorRating }]
+        : [];
     });
     return { quiz, questions };
   }

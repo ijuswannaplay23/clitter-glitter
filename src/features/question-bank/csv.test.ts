@@ -12,6 +12,46 @@ const question = (text: string, answer: string, rating = 3, themeIds: string[] =
   status: 'approved',
 });
 
+describe('multiple-choice CSV', () => {
+  const header = 'question,answer,difficulty,themes,choice1,choice2,choice3,choice4\n';
+
+  it('reads choices and accepts the answer as text (any case) or as a letter', () => {
+    const { rows, errors } = parseQuestionCsv(
+      `${header}Capital?,rome,,,Paris,Rome,Oslo,\nCapital?2,C,,,Paris,Rome,Oslo,\n`,
+    );
+    expect(errors).toEqual([]);
+    expect(rows.map((r) => [r.answer, r.choices])).toEqual([
+      ['Rome', ['Paris', 'Rome', 'Oslo']],
+      ['Oslo', ['Paris', 'Rome', 'Oslo']],
+    ]);
+  });
+
+  it('rejects an answer that is not a choice, one choice, and repeated choices', () => {
+    const { rows, errors } = parseQuestionCsv(
+      `${header}A?,Berlin,,,Paris,Rome,,\nB?,Paris,,,Paris,,,\nC?,Paris,,,Paris,paris,,\n`,
+    );
+    expect(rows).toEqual([]);
+    expect(errors.map((e) => e.message)).toEqual([
+      'The answer "Berlin" is not one of the choices.',
+      'A multiple-choice question needs at least 2 choices.',
+      'Two choices are the same.',
+    ]);
+  });
+
+  it('leaves questions without choice cells open-ended', () => {
+    const { rows } = parseQuestionCsv(`${header}Q?,A,,,,,,\n`);
+    expect(rows[0]?.choices).toBeUndefined();
+  });
+
+  it('round-trips choices through export and import', () => {
+    const q = { ...question('Capital?', 'Rome'), choices: ['Paris', 'Rome', '=Oslo'] };
+    const csv = questionsToCsv([q], () => undefined);
+    const { rows, errors } = parseQuestionCsv(csv);
+    expect(errors).toEqual([]);
+    expect(rows[0]).toMatchObject({ answer: 'Rome', choices: ['Paris', 'Rome', '=Oslo'] });
+  });
+});
+
 describe('parseQuestionCsv', () => {
   it('reads rows with difficulty and ";" separated themes', () => {
     const { rows, errors } = parseQuestionCsv(

@@ -1,5 +1,6 @@
 import type { GameEvent } from '../../domain';
 import { describeRound } from '../event-runner/presets';
+import { choicesLine } from '../question-bank/choices';
 
 export type WagerInfo =
   | { kind: 'none' }
@@ -33,7 +34,12 @@ export interface SheetPage {
 export type Arrangement = 'packet' | 'round';
 
 export function sheetTemplates(event: GameEvent, includeText: boolean): SheetTemplate[] {
-  const text = new Map((event.questions ?? []).map((q) => [q.id, q.text]));
+  const text = new Map(
+    (event.questions ?? []).map((q) => [
+      q.id,
+      q.choices ? `${q.text}   ${choicesLine(q.choices)}` : q.text,
+    ]),
+  );
   return event.quizSnapshot.rounds.map((round) => ({
     roundId: round.id,
     title: round.title,

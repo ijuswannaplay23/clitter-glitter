@@ -92,6 +92,33 @@ describe('Projector', () => {
     expect(screen.queryByText('Question 4')).toBeNull();
   });
 
+  it('lists lettered choices under a multiple-choice question', async () => {
+    const repo = createTestRepository();
+    const { event } = await seedNight(repo, {
+      rounds: 1,
+      questionsPerRound: 1,
+      snapshotQuestions: true,
+    });
+    const [question] = event.questions ?? [];
+    await repo.events.save({
+      ...event,
+      projectorQuestionId: question?.id,
+      questions: event.questions?.map((q) => ({
+        ...q,
+        answer: 'Rome',
+        choices: ['Paris', 'Rome', 'Oslo'],
+      })),
+    });
+    renderWithRepository(<Projector eventId={event.id} />, repo);
+
+    const choices = within(await screen.findByRole('list', { name: 'Choices' }));
+    expect(choices.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      'AParis',
+      'BRome',
+      'COslo',
+    ]);
+  });
+
   it('keeps showing scores if the chosen question has no saved text', async () => {
     const repo = createTestRepository();
     const { event } = await seedNight(repo, { rounds: 1, questionsPerRound: 1 });

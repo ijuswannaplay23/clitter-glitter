@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { Question } from '../../domain';
 import { errorMessage, useObserve, useRepository } from '../repository';
 import { saveQuestionDraft, type QuestionDraft } from './actions';
+import { choicesLine } from './choices';
 import { DIFFICULTIES, difficultyLabel } from './difficulty';
 import { ImportExport } from './ImportExport';
 import { QuestionForm } from './QuestionForm';
@@ -114,6 +115,7 @@ export function QuestionBank() {
                   <tr key={q.id}>
                     <th scope="row" className="plain">
                       {q.text}
+                      {q.choices && <p className="choices-line">{choicesLine(q.choices)}</p>}
                     </th>
                     <td>{q.answer}</td>
                     <td>{difficultyLabel(q.authorRating)}</td>
