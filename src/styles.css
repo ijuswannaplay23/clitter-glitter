@@ -1,0 +1,608 @@
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --text: #1b1b1f;
+  --muted: #62626b;
+  --border: #d9d9e0;
+  --accent: #b5179e;
+  --accent-text: #ffffff;
+  --good: #1b7f3b;
+  --bad: #c0262d;
+  --warn-bg: #fff4d6;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14141a;
+    --surface: #1d1d26;
+    --text: #ececf1;
+    --muted: #a3a3b0;
+    --border: #353545;
+    --accent: #e05ccd;
+    --accent-text: #14141a;
+    --good: #5ed184;
+    --bad: #ff7a80;
+    --warn-bg: #3a3118;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+main {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  color: var(--accent);
+}
+
+h2,
+h3 {
+  margin: 0 0 0.5rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.hint {
+  color: var(--muted);
+  margin: 0 0 0.75rem;
+}
+
+.form,
+.add-team {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+label.check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+input,
+select,
+button {
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0.4rem 0.6rem;
+}
+
+button {
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+button.link {
+  border: 0;
+  background: none;
+  padding: 0 0.25rem;
+  color: var(--muted);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.bar h2 {
+  margin: 0;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.tabs button[aria-current='true'] {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+.scroll {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.total {
+  font-weight: 700;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 6.5rem;
+}
+
+.wager {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.grades {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.grade {
+  flex: 1;
+  padding: 0.4rem 0;
+}
+
+.grade[aria-pressed='true'].correct {
+  background: var(--good);
+  color: var(--surface);
+  border-color: var(--good);
+}
+
+.grade[aria-pressed='true'].wrong {
+  background: var(--bad);
+  color: var(--surface);
+  border-color: var(--bad);
+}
+
+.grade[aria-pressed='true'].blank {
+  background: var(--muted);
+  color: var(--surface);
+  border-color: var(--muted);
+}
+
+.review {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--warn-bg);
+  border-radius: 0.375rem;
+}
+
+.review ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+[role='alert'] {
+  color: var(--bad);
+}
+
+textarea {
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0.4rem 0.6rem;
+  resize: vertical;
+}
+
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.chip {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.chip-option {
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.filters label {
+  min-width: 10rem;
+}
+
+.draft-list,
+.cue-card ol {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding-left: 1.5rem;
+}
+
+.cue-card {
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: 0.375rem;
+}
+
+.cue-card summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+th.plain {
+  font-weight: normal;
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+label.button,
+a.button {
+  display: inline-block;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Answer sheets: always black on white. On screen each page is shown at paper size; when printing,
+   everything but the sheets disappears and each sheet is exactly one page of Letter paper. */
+.sheets-view {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.sheets {
+  display: grid;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.sheet {
+  box-sizing: border-box;
+  width: 7.5in;
+  height: 9.9in;
+  padding: 0.3in;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12in;
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 0 0 1px #c8c8d0;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  overflow: hidden;
+}
+
+.sheet header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 0.08in;
+}
+
+.sheet h2 {
+  margin: 0;
+  font-size: 20pt;
+}
+
+.sheet header p {
+  margin: 0;
+  font-size: 13pt;
+}
+
+.team-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15in;
+  font-size: 14pt;
+}
+
+.team-line strong {
+  font-size: 18pt;
+}
+
+.blank-line {
+  flex: 1;
+  border-bottom: 1.5px solid #000000;
+  min-height: 0.3in;
+}
+
+.sheet .rules,
+.sheet .pool {
+  margin: 0;
+  font-size: 10.5pt;
+}
+
+.pool-chip {
+  display: inline-block;
+  min-width: 0.28in;
+  margin: 0 0.04in;
+  padding: 0.02in 0.06in;
+  border: 1.5px solid #000000;
+  border-radius: 50%;
+  text-align: center;
+  font-weight: 700;
+}
+
+.sheet-rows {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.06in;
+  min-height: 0;
+}
+
+/* Rows share the page equally but stop growing at 1.3in, so a lone final row stays compact. */
+.sheet-row {
+  flex: 1 1 0;
+  max-height: 1.3in;
+  display: grid;
+  grid-template-columns: 0.4in 1fr;
+  align-items: end;
+  gap: 0.1in;
+  min-height: 0;
+}
+
+.sheet.with-text .sheet-row {
+  grid-template-columns: 0.4in 3.6in 1fr;
+}
+
+.sheet.wagered .sheet-row {
+  grid-template-columns: 0.4in 1fr 0.9in;
+}
+
+.sheet.wagered.with-text .sheet-row {
+  grid-template-columns: 0.4in 3.2in 1fr 0.9in;
+}
+
+.crowded-note {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--warn-bg);
+  border-radius: 0.375rem;
+}
+
+/* Without question text the question column is empty, so collapse it. */
+.sheet:not(.with-text) .sheet-row > .q,
+.sheet:not(.with-text) .sheet-row.head > span:nth-child(2) {
+  display: none;
+}
+
+.sheet-row.head {
+  flex: none;
+  max-height: none;
+  font-size: 9pt;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  align-items: baseline;
+}
+
+.sheet-row .num {
+  font-size: 18pt;
+  font-weight: 700;
+  line-height: 1;
+  align-self: end;
+  padding-bottom: 0.02in;
+}
+
+.sheet-row .q {
+  align-self: end;
+  padding-bottom: 0.03in;
+  font-size: 10pt;
+  line-height: 1.2;
+}
+
+.answer-line {
+  align-self: stretch;
+  border-bottom: 1.5px solid #000000;
+}
+
+.wager-box {
+  align-self: end;
+  height: 0.5in;
+  border: 2px solid #000000;
+  border-radius: 0.05in;
+}
+
+.sheet footer {
+  font-size: 8pt;
+  color: #555555;
+  text-align: right;
+}
+
+@media print {
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .sheets-view {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sheets {
+    display: block;
+  }
+
+  .sheet {
+    width: auto;
+    padding: 0;
+    box-shadow: none;
+    break-after: page;
+  }
+
+  .sheet:last-child {
+    break-after: auto;
+  }
+}
+
+/* Projector: always dark and high contrast for a bright room, sized relative to the screen. */
+body:has(.projector) {
+  background: #0b0b10;
+}
+
+.projector {
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 3vmin 6vmin;
+  box-sizing: border-box;
+  background: #0b0b10;
+  color: #ffffff;
+}
+
+.projector h1 {
+  margin: 0;
+  color: #e05ccd;
+  font-size: clamp(2rem, 7vmin, 6rem);
+}
+
+.projector .subtitle {
+  margin: 0 0 3vmin;
+  color: #b8b8c8;
+  font-size: clamp(1.25rem, 3.5vmin, 3rem);
+}
+
+.projector .message {
+  font-size: clamp(1.5rem, 5vmin, 4rem);
+  color: #b8b8c8;
+}
+
+.projector .question {
+  margin: 4vmin 0 0;
+  font-size: clamp(2rem, 7vmin, 6rem);
+  line-height: 1.25;
+}
+
+.board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.2vmin;
+}
+
+.board li {
+  display: grid;
+  grid-template-columns: 10vmin 1fr auto;
+  align-items: baseline;
+  padding: 1.2vmin 3vmin;
+  background: #1b1b26;
+  border-radius: 1.5vmin;
+  font-size: clamp(1.5rem, 5.5vmin, 4.5rem);
+}
+
+.board li[data-rank='1'] {
+  background: #3a2d0a;
+  color: #ffd75e;
+}
+
+.board .rank {
+  color: #8a8aa0;
+}
+
+.board .score {
+  font-weight: 700;
+}
+
+.projector .fullscreen {
+  position: fixed;
+  right: 2vmin;
+  bottom: 2vmin;
+  opacity: 0.35;
+  background: transparent;
+  color: #ffffff;
+}
+
+.projector .fullscreen:hover {
+  opacity: 1;
+}
